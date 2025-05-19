@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Аватар -->
-    <com.google.android.material.imageview.ShapeableImageView
+    <ImageView
         android:id="@+id/ivAvatar"
         android:layout_width="120dp"
         android:layout_height="120dp"

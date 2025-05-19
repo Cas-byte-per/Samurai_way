@@ -1,14 +1,15 @@
 package com.example.myapp;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,126 +18,169 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class SettingsFragment extends Fragment {
 
-    private FirebaseAuth auth;
-    private FirebaseUser user;
-    private ActivityResultLauncher<String> pickImageLauncher;
-
-    private EditText etName;
+    private static final String IMGBB_API_KEY = "3c3e9cc26aeb95b60797a71f1ab00396";
+    private ActivityResultLauncher<String[]> pickImageLauncher;
     private ImageView ivAvatar;
-    private Button btnClose;
-    private Button btnSave;
-    private Button btnChangeAvatar;
+    private FirebaseUser user;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Лаунчер для выбора изображения из галереи
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
         pickImageLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
+                new ActivityResultContracts.OpenDocument(),
                 uri -> {
-                    if (uri == null) return;
+                    if (uri == null || user == null) return;
                     ivAvatar.setImageURI(uri);
-                    if (user != null) {
-                        // Обновляем фото в профиле Firebase
-                        UserProfileChangeRequest photoReq = new UserProfileChangeRequest.Builder()
-                                .setPhotoUri(uri)
-                                .build();
-                        user.updateProfile(photoReq);
-                    }
+
+                    // Запускаем загрузку в imgbb в фоновом потоке
+                    new Thread(() -> uploadToImgbb(uri)).start();
                 }
         );
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Подключаем разметку fragment_settings.xml (без поля телефона)
+    @Nullable @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
+    public void onViewCreated(
+            @NonNull View view,
+            @Nullable Bundle savedInstanceState
+    ) {
+        super.onViewCreated(view, savedInstanceState);
 
-        // Привязываем элементы UI (без etPhone)
-        etName          = view.findViewById(R.id.etName);
         ivAvatar        = view.findViewById(R.id.ivAvatar);
-        btnClose        = view.findViewById(R.id.btnClose);
-        btnSave         = view.findViewById(R.id.btnSave);
-        btnChangeAvatar = view.findViewById(R.id.btnChangeAvatar);
+        EditText etName = view.findViewById(R.id.etName);
+        Button btnChangeAvatar = view.findViewById(R.id.btnChangeAvatar);
+        Button btnSave         = view.findViewById(R.id.btnSave);
+        Button btnClose        = view.findViewById(R.id.btnClose);
 
-        // Заполняем текущее имя и аватар
-        if (user != null) {
-            if (user.getDisplayName() != null) etName.setText(user.getDisplayName());
-            if (user.getPhotoUrl() != null) ivAvatar.setImageURI(user.getPhotoUrl());
+        // Подставляем текущее фото и имя
+        if (user.getPhotoUrl() != null) {
+            if (user.getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(user.getPhotoUrl())
+                        .circleCrop()
+                        .into(ivAvatar);
+            }
+        }
+        if (user.getDisplayName() != null) {
+            etName.setText(user.getDisplayName());
         }
 
-        // Открыть галерею для выбора аватара
         btnChangeAvatar.setOnClickListener(v ->
-                pickImageLauncher.launch("image/*")
+                pickImageLauncher.launch(new String[]{"image/*"})
         );
 
-        // Закрыть без сохранения
-        btnClose.setOnClickListener(v ->
-                requireActivity()
-                        .getSupportFragmentManager()
-                        .popBackStack()
-        );
-        // Сохранить изменения (только имя и аватар)
         btnSave.setOnClickListener(v -> {
-            if (user == null) {
-                Toast.makeText(getContext(), "Пользователь не авторизован", Toast.LENGTH_SHORT).show();
+            String newName = etName.getText().toString().trim();
+            if (newName.isEmpty()) {
+                Toast.makeText(getContext(), "Имя не может быть пустым", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            String newName = etName.getText().toString().trim();
-
-            UserProfileChangeRequest profileReq = new UserProfileChangeRequest.Builder()
+            // Обновляем только имя; фото обновится, когда uploadToImgbb вернёт URL
+            UserProfileChangeRequest req = new UserProfileChangeRequest.Builder()
                     .setDisplayName(newName)
                     .build();
-
-            user.updateProfile(profileReq)
-                    .addOnSuccessListener(aVoid -> {
-                        // Перезагружаем данные пользователя
-                        user.reload()
-                                .addOnSuccessListener(aVoid2 -> {
-                                    Toast.makeText(getContext(), "Профиль сохранён", Toast.LENGTH_SHORT).show();
-                                    // Возвращаемся назад
-                                    requireActivity()
-                                            .getSupportFragmentManager()
-                                            .popBackStack();
-                                })
-                                .addOnFailureListener(err ->
-                                        Toast.makeText(getContext(),
-                                                "Не удалось перезагрузить профиль: " + err.getMessage(),
-                                                Toast.LENGTH_SHORT).show()
-                                );
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(),
-                                    "Ошибка сохранения: " + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show()
+            user.updateProfile(req)
+                    .addOnSuccessListener(_a ->
+                            Toast.makeText(getContext(), "Профиль сохранён", Toast.LENGTH_SHORT).show()
                     );
         });
+
+        btnClose.setOnClickListener(v ->
+                requireActivity().getSupportFragmentManager().popBackStack()
+        );
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((MainActivity) requireActivity()).setBottomNavVisible(false);
-    }
+    private void uploadToImgbb(Uri uri) {
+        try {
+            // 1) Прочитаем байты картинки и закодируем в Base64
+            InputStream is = requireContext()
+                    .getContentResolver()
+                    .openInputStream(uri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = is.read(buf)) != -1) {
+                baos.write(buf, 0, len);
+            }
+            is.close();
+            String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        ((MainActivity) requireActivity()).setBottomNavVisible(true);
+            // 2) Собираем POST-запрос к imgbb
+            OkHttpClient client = new OkHttpClient();
+            RequestBody form = new FormBody.Builder()
+                    .add("key", IMGBB_API_KEY)
+                    .add("image", base64)
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url("https://api.imgbb.com/1/upload")
+                    .post(form)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            if (!response.isSuccessful()) throw new Exception("HTTP " + response.code());
+
+            // 3) Парсим JSON и берём data.url
+            String body = response.body().string();
+            JsonObject data = new Gson()
+                    .fromJson(body, JsonObject.class)
+                    .getAsJsonObject("data");
+            String imageUrl = data.get("url").getAsString();
+
+            // 4) Обновляем photoUrl у пользователя Firebase
+            UserProfileChangeRequest photoReq =
+                    new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(Uri.parse(imageUrl))
+                            .build();
+            user.updateProfile(photoReq)
+                    .addOnSuccessListener(_a -> {
+                        // возвращаемся в UI-поток, чтобы показать Toast
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(
+                                        getContext(),
+                                        "Аватар загружен в облако!",
+                                        Toast.LENGTH_SHORT
+                                ).show()
+                        );
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(getContext(),
+                            "Ошибка загрузки: " + e.getMessage(),
+                            Toast.LENGTH_LONG
+                    ).show()
+            );
+        }
     }
 }
