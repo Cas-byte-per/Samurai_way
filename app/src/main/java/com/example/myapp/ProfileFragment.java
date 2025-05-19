@@ -23,7 +23,6 @@ public class ProfileFragment extends Fragment {
     private TextView textEmail, textPhone, tvTitle;
     private ShapeableImageView ivAvatar;
     private FirebaseAuth auth;
-    private static final int PICK_IMAGE = 100;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -41,12 +40,7 @@ public class ProfileFragment extends Fragment {
 
         updateTitle(user);
         if (user != null && user.getPhotoUrl() != null) {
-            Glide.with(this)
-                    .load(user.getPhotoUrl())
-                    .placeholder(R.drawable.ic_user)    // картинка-заглушка
-                    .error(R.drawable.ic_user)         // на случай ошибки
-                    .circleCrop()                      // обрезка в круг
-                    .into(ivAvatar);
+            ivAvatar.setImageURI(user.getPhotoUrl());
         }
 
         btnSettings.setOnClickListener(v -> {
