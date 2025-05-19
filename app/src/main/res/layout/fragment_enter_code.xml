@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="40dp"
+    android:paddingRight="20dp"
+    android:paddingLeft="20dp"
+    android:gravity="top|center_horizontal">
+
+    <!-- Заголовок "ВВЕДИТЕ КОД" -->
+    <TextView
+        android:textColor="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ВВЕДИТЕ КОД"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:paddingStart="20dp"
+        android:textAlignment="viewStart" />
+
+    <!-- Подзаголовок с информацией -->
+    <TextView
+        android:textColor="@color/black"
+        android:id="@+id/tvInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сейчас вам придет смс на номер +7**********"
+        android:textSize="14sp"
+        android:layout_marginBottom="24dp"
+        android:paddingStart="20dp"
+        android:textAlignment="viewStart" />
+
+    <!-- Поле для ввода кода -->
+    <EditText
+        android:id="@+id/etCode"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_info_block"
+        android:inputType="number"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:letterSpacing="0.5"
+        android:maxLength="6" />
+
+    <!-- Таймер -->
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Не пришел код? 00:30"
+        android:textSize="12sp"
+        android:clickable="true"
+        android:layout_marginTop="12dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirm"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@android:color/black"
+        android:text="Подтвердить"
+        android:textColor="@android:color/white"
+        android:textStyle="normal"
+        app:cornerRadius="40dp" />
+</LinearLayout>

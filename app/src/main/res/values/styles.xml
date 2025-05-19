@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Стиль для круглой аватарки -->
+    <style name="ShapeAppearanceOverlay.App.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <!-- Ваш основной AppTheme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Привязываем наш стиль к BottomNavigationView -->
+        <item name="bottomNavigationStyle">@style/MyBottomNavStyle</item>
+    </style>
+    <!-- Настраиваемый стиль для BottomNavigationView -->
+    <style name="MyBottomNavStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <!-- Здесь задаём цвет ripple -->
+        <item name="itemRippleColor">@color/pink</item>
+    </style>
+</resources>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="12dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="12dp"
+    android:padding="12dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <!-- Иконка выполнения -->
+        <ImageButton
+            android:id="@+id/btnToggleComplete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_checkbox_empty"
+            android:contentDescription="Выполнить задачу" />
+
+        <!-- Заголовок задачи -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/btnToggleComplete"
+            android:layout_marginStart="12dp"
+            android:text="Название задачи"
+            android:textSize="14sp"
+            android:textColor="#000000" />
+
+
+        <!-- Мусорка (удалить) -->
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_trashlist"
+            android:contentDescription="Удалить задачу окончательно" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
