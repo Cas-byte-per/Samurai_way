@@ -182,7 +182,25 @@ public class EditTaskFragment extends Fragment {
                 Toast.makeText(getContext(), "Нельзя ставить задачу на прошедшую дату", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            // ─────══ Проверка времени, если оно указано ══─────
+            if (!time.isEmpty()) {
+                    // объединяем дату и время
+                    String dt = date + " " + time;
+                    SimpleDateFormat sdfDT = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.getDefault());
+                    sdfDT.setLenient(false);
+                    Date enteredDateTime;
+                    try {
+                        enteredDateTime = sdfDT.parse(dt);
+                    } catch (ParseException e) {
+                        Toast.makeText(getContext(), "Время некорректно. Проверьте часы и минуты.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // если сочетание «дата+время» раньше сейчас — ошибка
+                    if (enteredDateTime.before(new Date())) {
+                        Toast.makeText(getContext(), "Нельзя ставить дедлайн в прошлом", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+            }
             Bundle result = new Bundle();
             result.putString("title", title);
             result.putString("date", date);
