@@ -144,19 +144,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
-                android:text="Напомнить"
+                android:text="Напомнить за сутки?"
                 android:paddingBottom="10dp"
                 android:trackTint="@color/switch_track_color"
                 android:thumbTint="@color/switch_thumb_color"/>
 
-            <Spinner
-                android:id="@+id/spinnerNotifyBefore"
-                android:entries="@array/notify_hours"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:enabled="false" />
         </LinearLayout>
         <Button
             android:id="@+id/btnSave"

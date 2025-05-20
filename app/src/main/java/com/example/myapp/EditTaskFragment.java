@@ -38,7 +38,6 @@ public class EditTaskFragment extends Fragment {
     private static final String ARG_PRIORITY         = "priority";
     private static final String ARG_DESCRIPTION      = "description";
     private static final String ARG_NOTIFY_ENABLED   = "notifyEnabled";
-    private static final String ARG_NOTIFY_BEFORE    = "notifyBeforeHours";
 
     private EditText titleInput, dateInput, timeInput, descriptionInput;
     private Spinner prioritySpinner;
@@ -48,7 +47,6 @@ public class EditTaskFragment extends Fragment {
     private int position = -1;
 
     private Switch switchNotify;
-    private Spinner spinnerNotifyBefore;
 
     public static EditTaskFragment newInstance(int position, Task task) {
         EditTaskFragment fragment = new EditTaskFragment();
@@ -60,7 +58,6 @@ public class EditTaskFragment extends Fragment {
         args.putInt   (ARG_PRIORITY,       task.getPriority());
         args.putString(ARG_DESCRIPTION,    task.getDescription());
         args.putBoolean(ARG_NOTIFY_ENABLED,   task.isNotifyEnabled());
-        args.putInt   (ARG_NOTIFY_BEFORE, task.getNotifyBeforeHours());
         fragment.setArguments(args);
         return fragment;
     }
@@ -80,7 +77,6 @@ public class EditTaskFragment extends Fragment {
         saveButton          = view.findViewById(R.id.btnSave);
         prioritySpinner     = view.findViewById(R.id.spinnerPriority);
         switchNotify        = view.findViewById(R.id.switchNotify);
-        spinnerNotifyBefore = view.findViewById(R.id.spinnerNotifyBefore);
 
         // отключаем ручной ввод для даты и времени
         dateInput.setInputType(InputType.TYPE_NULL);
@@ -141,19 +137,7 @@ public class EditTaskFragment extends Fragment {
             isDescExpanded = !isDescExpanded;
         });
 
-        // Spinner для уведомлений
-        ArrayAdapter<CharSequence> notifyAdapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.notify_hours,
-                android.R.layout.simple_spinner_item
-        );
-        notifyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerNotifyBefore.setAdapter(notifyAdapter);
 
-        // включение/отключение Spinner
-        switchNotify.setOnCheckedChangeListener((CompoundButton btn, boolean isChecked) ->
-                spinnerNotifyBefore.setEnabled(isChecked)
-        );
 
         // заполнение полей при редактировании
         if (getArguments() != null) {
@@ -166,10 +150,7 @@ public class EditTaskFragment extends Fragment {
             descriptionInput.setText(getArguments().getString(ARG_DESCRIPTION));
 
             boolean notifyOn = getArguments().getBoolean(ARG_NOTIFY_ENABLED, false);
-            int beforeHours = getArguments().getInt(ARG_NOTIFY_BEFORE, 1);
             switchNotify.setChecked(notifyOn);
-            spinnerNotifyBefore.setSelection(beforeHours - 1);
-            spinnerNotifyBefore.setEnabled(notifyOn);
         }
 
         // сохранение
@@ -179,7 +160,6 @@ public class EditTaskFragment extends Fragment {
             String time  = timeInput.getText().toString().trim();
             int prio     = prioritySpinner.getSelectedItemPosition() + 1;
             String desc  = descriptionInput.getText().toString().trim();
-
             if (title.isEmpty()) {
                 Toast.makeText(getContext(), "Введите название задачи", Toast.LENGTH_SHORT).show();
                 return;
@@ -214,11 +194,11 @@ public class EditTaskFragment extends Fragment {
                     Toast.makeText(getContext(), "Нельзя ставить дедлайн в прошлом", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
             }
 
             // параметры уведомления
             boolean notifyOn = switchNotify.isChecked();
-            int beforeHours = spinnerNotifyBefore.getSelectedItemPosition() + 1;
 
             Bundle result = new Bundle();
             result.putString("title",       title);
@@ -227,7 +207,6 @@ public class EditTaskFragment extends Fragment {
             result.putInt   (ARG_PRIORITY,  prio);
             result.putString("description", desc);
             result.putBoolean(ARG_NOTIFY_ENABLED, notifyOn);
-            result.putInt   (ARG_NOTIFY_BEFORE, beforeHours);
 
             if (getArguments() != null && getArguments().containsKey(ARG_POSITION)) {
                 result.putInt("position", getArguments().getInt(ARG_POSITION));

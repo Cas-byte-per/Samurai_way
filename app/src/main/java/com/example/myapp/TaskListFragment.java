@@ -1,8 +1,10 @@
 package com.example.myapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.myapp.NotificationUtils;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,10 +28,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TaskListFragment extends Fragment {
 
@@ -42,6 +50,8 @@ public class TaskListFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
+
+        Toast.makeText(requireContext(), "TaskListFragment стартует", Toast.LENGTH_SHORT).show();
 
         RecyclerView taskRecyclerView = view.findViewById(R.id.taskRecyclerView);
         ImageButton btnFilter = view.findViewById(R.id.btnFilter);
@@ -75,6 +85,7 @@ public class TaskListFragment extends Fragment {
                             task.setDeletedAt(System.currentTimeMillis());
                             updateTaskInPrefs(task);
                             loadTasks();
+                            NotificationUtils.cancelNotification(requireContext(), task);
                             adapter.notifyDataSetChanged();
                         })
                         .setNegativeButton("Отмена", null)
@@ -93,6 +104,7 @@ public class TaskListFragment extends Fragment {
                 Task task = taskList.get(position);
                 task.setCompleted(true);
                 saveTasks();
+                NotificationUtils.cancelNotification(requireContext(), task);
                 taskList.remove(position);
                 adapter.notifyItemRemoved(position);
             }
@@ -122,9 +134,16 @@ public class TaskListFragment extends Fragment {
                     String time = bundle.getString("time");
                     int priority = bundle.getInt("priority");
                     String description = bundle.getString("description");
+                    boolean notifyOn   = bundle.getBoolean("notifyEnabled", false);
+
                     taskList.add(new Task(title, date, time, priority, description));
                     saveTasks();
                     adapter.notifyItemInserted(taskList.size() - 1);
+                    Task newTask = taskList.get(taskList.size()-1);
+                    newTask.setNotifyEnabled(notifyOn);
+                    if (newTask.isNotifyEnabled()) {
+                        NotificationUtils.scheduleNotification(requireContext(), newTask);
+                    }
                 }
         );
 
@@ -136,11 +155,19 @@ public class TaskListFragment extends Fragment {
                     String time = bundle.getString("time");
                     int priority = bundle.getInt("priority");
                     String description = bundle.getString("description");
+                    boolean notifyOn   = bundle.getBoolean("notifyEnabled", false);
 
                     Task updated = new Task(title, date, time, priority, description);
+                    updated.setNotifyEnabled(notifyOn);
                     taskList.set(pos, updated);
                     saveTasks();
                     adapter.notifyItemChanged(pos);
+                    Task updatedTask = taskList.get(pos);
+                    if (updatedTask.isNotifyEnabled()) {
+                        NotificationUtils.scheduleNotification(requireContext(), updatedTask);
+                    } else {
+                        NotificationUtils.cancelNotification(requireContext(), updatedTask);
+                    }
                 }
         );
 
@@ -155,7 +182,6 @@ public class TaskListFragment extends Fragment {
 
         return view;
     }
-
     private void saveTasks() {
         JSONArray jsonArray = new JSONArray();
         for (Task task : taskList) {

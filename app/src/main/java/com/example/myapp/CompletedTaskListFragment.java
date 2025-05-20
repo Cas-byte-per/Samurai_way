@@ -74,7 +74,9 @@ public class CompletedTaskListFragment extends Fragment {
 
                 // 2. Обновляем в SharedPreferences
                 updateTaskInPrefs(task);
-
+                if (task.isNotifyEnabled()) {
+                    NotificationUtils.scheduleNotification(requireContext(), task);
+                }
                 // 3. Перезагружаем список выполненных заново
                 loadCompletedTasks();
                 adapter.notifyDataSetChanged();

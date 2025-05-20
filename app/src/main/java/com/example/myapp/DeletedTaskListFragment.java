@@ -132,6 +132,9 @@ public class DeletedTaskListFragment extends Fragment {
                     task.setDeletedAt(0);
                     task.setCompleted(false);
                     updateTaskInPrefs(task);
+                    if (task.isNotifyEnabled()) {
+                        NotificationUtils.scheduleNotification(requireContext(), task);
+                    }
                     loadDeletedTasks();
                 })
                 .setNegativeButton("Нет", null)
