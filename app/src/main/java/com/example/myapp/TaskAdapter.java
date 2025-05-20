@@ -44,9 +44,21 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.VH> {
         Task task = tasks.get(position);
 
         String title = task.getTitle();
-        String date = task.getDate();
-        holder.taskInfo.setText(title + " (" + date + ")");
-
+        holder.taskInfo.setText(title);
+        // дата
+        if (!task.getDate().isEmpty()) {
+            holder.tvDate.setVisibility(View.VISIBLE);
+            holder.tvDate.setText(task.getDate());
+        } else {
+            holder.tvDate.setVisibility(View.GONE);
+        }
+        // время
+        if (!task.getTime().isEmpty()) {
+            holder.tvTime.setVisibility(View.VISIBLE);
+            holder.tvTime.setText(task.getTime());
+        } else {
+            holder.tvTime.setVisibility(View.GONE);
+        }
         @DrawableRes int iconRes;
         if (isTrashMode) {
             iconRes = R.drawable.ic_deleted;
@@ -71,12 +83,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.VH> {
         TextView taskInfo;
         ImageView checkbox;
         ImageButton deleteBtn;
+        TextView tvDate, tvTime;
 
         VH(@NonNull View itemView) {
             super(itemView);
             taskInfo = itemView.findViewById(R.id.tvTitle);
             checkbox = itemView.findViewById(R.id.btnToggleComplete);
             deleteBtn = itemView.findViewById(R.id.btnDelete);
+            tvDate       = itemView.findViewById(R.id.tvDate);
+            tvTime       = itemView.findViewById(R.id.tvTime);
         }
     }
 
