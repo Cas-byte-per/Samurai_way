@@ -115,7 +115,6 @@ public class TaskListFragment extends Fragment {
                     .thenComparing(Task::getPriority));
             adapter.notifyDataSetChanged();
         });
-
         getParentFragmentManager().setFragmentResultListener(
                 "task_add_result", this, (key, bundle) -> {
                     String title = bundle.getString("title");

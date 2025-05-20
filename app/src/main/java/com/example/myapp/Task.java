@@ -11,17 +11,24 @@ public class Task {
     private String description;   // новое поле
     private boolean isCompleted;    // ← новое поле
     private long deletedAt = 0; // 0 — не удалено
+    private boolean notifyEnabled;
+    private int notifyBeforeHours;
+    private long id;              // уникальный идентификатор задачи
 
-    public Task(String title, String date, String time, int priority, String description, boolean isCompleted) {
+    public Task(String title, String date, String time, int priority, String description, boolean isCompleted,
+                boolean notifyEnabled, int notifyBeforeHours) {
         this.title = title;
         this.date = date;
         this.time = time;
         this.priority = priority;
         this.description = description;
         this.isCompleted = isCompleted;
+        this.notifyEnabled     = notifyEnabled;
+        this.notifyBeforeHours = notifyBeforeHours;
+        this.id = System.currentTimeMillis();
     }
     public Task(String title, String date, String time, int priority, String description) {
-        this(title, date, time, priority, description, false);
+        this(title, date, time, priority, description, false, false, 1);
     }
     public long getDeletedAt() { return deletedAt; }
     public void setDeletedAt(long timestamp) { this.deletedAt = timestamp; }
@@ -34,6 +41,11 @@ public class Task {
     public void setCompleted(boolean completed) { isCompleted = completed; }
     public String getTime() { return time; }
     public void setTime(String time) { this.time = time; }
+    public boolean isNotifyEnabled() { return notifyEnabled; }
+    public void setNotifyEnabled(boolean notifyEnabled) { this.notifyEnabled = notifyEnabled; }
+    public int getNotifyBeforeHours() { return notifyBeforeHours; }
+    public void setNotifyBeforeHours(int notifyBeforeHours) { this.notifyBeforeHours = notifyBeforeHours; }
+
 
 
     public JSONObject toJson() throws JSONException {
@@ -45,6 +57,8 @@ public class Task {
         obj.put("description", description);
         obj.put("isCompleted", isCompleted);
         obj.put("deletedAt", deletedAt);// ← сохраняем флаг
+        obj.put("notifyEnabled", notifyEnabled);
+        obj.put("notifyBeforeHours", notifyBeforeHours);
         return obj;
     }
 
@@ -55,7 +69,9 @@ public class Task {
                 obj.optString("time", ""),
                 obj.getInt("priority"),
                 obj.getString("description"),
-                obj.optBoolean("isCompleted", false)
+                obj.optBoolean("isCompleted", false),
+                obj.optBoolean("notifyEnabled", false),
+                obj.optInt("notifyBeforeHours", 1)
         );
         task.setDeletedAt(obj.optLong("deletedAt", 0));
         return task;

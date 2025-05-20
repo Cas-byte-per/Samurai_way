@@ -131,7 +131,33 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"/>
     </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp"
+            android:paddingBottom="20dp">
 
+            <Switch
+                android:id="@+id/switchNotify"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:text="Напомнить"
+                android:paddingBottom="10dp"
+                android:trackTint="@color/switch_track_color"
+                android:thumbTint="@color/switch_thumb_color"/>
+
+            <Spinner
+                android:id="@+id/spinnerNotifyBefore"
+                android:entries="@array/notify_hours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false" />
+        </LinearLayout>
         <Button
             android:id="@+id/btnSave"
             style="@style/Widget.MaterialComponents.Button"

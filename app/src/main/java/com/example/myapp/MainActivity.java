@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
                     )
                     .commit();
         }
-
         BottomNavigationView nav = findViewById(R.id.bottom_navigation);
         nav.setOnItemSelectedListener(item -> {
             Fragment f = item.getItemId() == R.id.nav_profile
