@@ -120,9 +120,10 @@ public class TaskListFragment extends Fragment {
                 "task_add_result", this, (key, bundle) -> {
                     String title = bundle.getString("title");
                     String date = bundle.getString("date");
+                    String time = bundle.getString("time");
                     int priority = bundle.getInt("priority");
                     String description = bundle.getString("description");
-                    taskList.add(new Task(title, date, priority, description));
+                    taskList.add(new Task(title, date, time, priority, description));
                     saveTasks();
                     adapter.notifyItemInserted(taskList.size() - 1);
                 }
@@ -133,10 +134,11 @@ public class TaskListFragment extends Fragment {
                     int pos = bundle.getInt("position");
                     String title = bundle.getString("title");
                     String date = bundle.getString("date");
+                    String time = bundle.getString("time");
                     int priority = bundle.getInt("priority");
                     String description = bundle.getString("description");
 
-                    Task updated = new Task(title, date, priority, description);
+                    Task updated = new Task(title, date, time, priority, description);
                     taskList.set(pos, updated);
                     saveTasks();
                     adapter.notifyItemChanged(pos);

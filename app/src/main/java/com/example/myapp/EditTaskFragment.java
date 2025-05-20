@@ -1,6 +1,7 @@
 package com.example.myapp;
 
 import android.app.AlertDialog; // NEW
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,8 +36,9 @@ public class EditTaskFragment extends Fragment {
     private static final String ARG_DATE        = "date";
     private static final String ARG_PRIORITY    = "priority";
     private static final String ARG_DESCRIPTION = "description";
+    private static final String ARG_TIME = "time";
 
-    private EditText titleInput, dateInput, descriptionInput;
+    private EditText titleInput, dateInput, descriptionInput, timeInput;
     private Spinner prioritySpinner;
     private ImageView ivToggleDesc;
     private boolean isDescExpanded = false;
@@ -49,6 +51,7 @@ public class EditTaskFragment extends Fragment {
         args.putInt(ARG_POSITION, position);
         args.putString(ARG_TITLE, task.getTitle());
         args.putString(ARG_DATE, task.getDate());
+        args.putString(ARG_TIME, task.getTime());
         args.putInt(ARG_PRIORITY, task.getPriority());
         args.putString(ARG_DESCRIPTION, task.getDescription());
         fragment.setArguments(args);
@@ -64,9 +67,14 @@ public class EditTaskFragment extends Fragment {
         // findViewById
         titleInput       = view.findViewById(R.id.etTitle);
         dateInput        = view.findViewById(R.id.etDate);
+        timeInput = view.findViewById(R.id.etTime);
+
         // Отключаем ручной ввод и скрываем курсор
         dateInput.setInputType(InputType.TYPE_NULL);
         dateInput.setCursorVisible(false);
+
+        timeInput.setInputType(InputType.TYPE_NULL);
+        timeInput.setCursorVisible(false);
 
         // По клику показываем DatePickerDialog
         dateInput.setOnClickListener(v -> {
@@ -92,6 +100,18 @@ public class EditTaskFragment extends Fragment {
                     year, month, day
             );
             picker.show();
+        });
+        timeInput.setOnClickListener(v -> {
+            final Calendar cal = Calendar.getInstance();
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            int minute = cal.get(Calendar.MINUTE);
+            new TimePickerDialog(requireContext(),
+                    (view1, h, m) -> {
+                        String fmt = String.format(Locale.getDefault(), "%02d:%02d", h, m);
+                        timeInput.setText(fmt);
+                    },
+                    hour, minute, true
+            ).show();
         });
 
         // 1) Находим Spinner
@@ -131,6 +151,7 @@ public class EditTaskFragment extends Fragment {
             position = getArguments().getInt(ARG_POSITION, -1); // NEW
             titleInput.setText(getArguments().getString(ARG_TITLE));
             dateInput.setText(getArguments().getString(ARG_DATE));
+            timeInput.setText(getArguments().getString(ARG_TIME, ""));
             int prio = getArguments().getInt(ARG_PRIORITY, 1);   // 1–3
             prioritySpinner.setSelection(prio - 1);
             descriptionInput.setText(getArguments().getString(ARG_DESCRIPTION));
@@ -140,15 +161,12 @@ public class EditTaskFragment extends Fragment {
         saveButton.setOnClickListener(v -> {
             String title       = titleInput.getText().toString().trim();
             String date        = dateInput.getText().toString().trim();
+            String time = timeInput.getText().toString().trim();
             int prio = prioritySpinner.getSelectedItemPosition() + 1;
             String description = descriptionInput.getText().toString().trim();
 
             if (title.isEmpty()) {
                 Toast.makeText(getContext(), "Введите название задачи", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!date.matches("^\\d{2}\\.\\d{2}\\.\\d{2}$")) {
-                Toast.makeText(getContext(), "Введите дату в формате дд.мм.гг", Toast.LENGTH_SHORT).show();
                 return;
             }
             // валидируем дату...
@@ -170,6 +188,7 @@ public class EditTaskFragment extends Fragment {
             result.putString("date", date);
             result.putInt(ARG_PRIORITY, prio);
             result.putString("description", description);
+            result.putString("time",time);
 
             if (getArguments() != null && getArguments().containsKey(ARG_POSITION)) {
                 int pos = getArguments().getInt(ARG_POSITION);
