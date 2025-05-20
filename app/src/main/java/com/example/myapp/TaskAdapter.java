@@ -6,6 +6,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import android.graphics.Color;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -58,6 +65,32 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.VH> {
             holder.tvTime.setText(task.getTime());
         } else {
             holder.tvTime.setVisibility(View.GONE);
+        }
+        CardView card = (CardView) holder.itemView;
+        String dateStr = task.getDate();
+        String timeStr = task.getTime();
+        int defaultColor = Color.WHITE;
+        if (!dateStr.isEmpty()) {
+             if (timeStr.isEmpty()) {
+                 timeStr = "23:59";
+             }
+             String combined = dateStr + " " + timeStr;
+             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.getDefault());
+             try {
+                 Date dueDateTime = sdf.parse(combined);
+                 Date now = new Date();
+                 if (dueDateTime.before(now) && !task.isCompleted()) {
+                     card.setCardBackgroundColor(
+                             ContextCompat.getColor(holder.itemView.getContext(), R.color.pink)
+                     );
+                 } else {
+                     card.setCardBackgroundColor(defaultColor);
+                 }
+             } catch (ParseException e) {
+                 card.setCardBackgroundColor(defaultColor);
+             }
+        } else {
+            card.setCardBackgroundColor(defaultColor);
         }
         @DrawableRes int iconRes;
         if (isTrashMode) {
