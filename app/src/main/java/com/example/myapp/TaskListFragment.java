@@ -50,9 +50,6 @@ public class TaskListFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_list, container, false);
-
-        Toast.makeText(requireContext(), "TaskListFragment стартует", Toast.LENGTH_SHORT).show();
-
         RecyclerView taskRecyclerView = view.findViewById(R.id.taskRecyclerView);
         ImageButton btnFilter = view.findViewById(R.id.btnFilter);
         Button btnAddTask = view.findViewById(R.id.btnAddTask);
