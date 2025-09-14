@@ -42,12 +42,12 @@
         android:fontFamily="@font/oks_free"
         android:gravity="center"
         android:text="Ты справишься,\n User!"
-        android:textColor="@color/black"
+        android:textColor="#F0F4F8"
         android:textSize="45sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivAvatar" />
-
+    <!-- Слишком низкая контрастность интерфейса - ошибка 4  -->
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -104,12 +104,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="ВЫЙТИ"
-        android:textColor="#CC3300"
+        android:textColor="#4CAF50"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnTrash"
         app:layout_constraintVertical_bias="0.048" />
-
+    <!-- Неправильное выделение цветом - Ошибка 5 -->
 </androidx.constraintlayout.widget.ConstraintLayout>

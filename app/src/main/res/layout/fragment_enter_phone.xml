@@ -12,10 +12,10 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/oks_free"
         android:gravity="left"
-        android:text="НАЧНИ СВОЙ\nПУТЬ ЗДЕСЬ И СЕЙЧАС"
+        android:text="НJЧНИ СВОЙ\nПУТЬ ЗДЕСЬ И СЕЙЧАС"
         android:textColor="@color/black"
         android:textSize="60sp" />
-
+    <!-- НJЧНИ СВОЙ\nПУТЬ ЗДЕСЬ И СЕЙЧАС - 1 ошибка(синтаксическая) -->
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"

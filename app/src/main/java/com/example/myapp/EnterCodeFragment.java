@@ -70,7 +70,7 @@ public class EnterCodeFragment extends Fragment {
         tvInfo = view.findViewById(R.id.tvInfo);
         tvTimer = view.findViewById(R.id.tvTimer);
         etCode = view.findViewById(R.id.etCode);
-        btnConfirm = view.findViewById(R.id.btnConfirm);
+        btnConfirm = view.findViewById(R.id.btnConfirm);// неправильный id кнопки - ошибка 3
 
         tvInfo.setText("Сейчас вам придет смс на номер " + maskPhone(phoneNumber));
 

@@ -2,11 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_clipboard_list"
+        android:icon="@drawable/ic_user"
         android:title=""/>
+    <!-- иконки поменяны местами - ошибка 2(логическая) -->
     <item
         android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_user"
+        android:icon="@drawable/ic_clipboard_list"
         android:title=""/>
 </menu>
 
